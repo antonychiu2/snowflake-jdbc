@@ -1,0 +1,25 @@
+name: Mobb/CodeQL
+on:
+  workflow_run:
+    workflows: ["CodeQL"] 
+    types:
+      - completed
+jobs:
+  handle_codeql_scan:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}    
+    permissions:
+      pull-requests: write
+      security-events: write
+      statuses: write
+      contents: write
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - uses: mobb-dev/codeql-mobb-fixer-action@added-support-for-commit-based-codeql
+        with:
+          mobb-api-token: ${{ secrets.MOBB_API_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          mobb-project-name: ${{ vars.MOBB_PROJECT_NAME }}
+          organization-id: ${{ vars.ORGANIZATION_ID }}
