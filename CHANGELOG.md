@@ -1,0 +1,71 @@
+#### For all official JDBC Release Notes please refer to https://docs.snowflake.com/en/release-notes/clients-drivers/jdbc
+
+# Changelog
+- v4.0.1-SNAPSHOT
+    -
+    - 
+    -
+    -
+    -
+    -
+    -
+    -
+    -
+
+- v4.0.0
+    - Bumped netty to 4.1.130.Final to address CVE-2025-67735
+    - Fix OCSP HTTP client cache to honor per-connection proxy settings (snowflakedb/snowflake-jdbc#2449)
+    - Mask secrets in exception logging (snowflakedb/snowflake-jdbc#2457)
+    - Fix NPE when sending in-band telemetry without HTTP response (snowflakedb/snowflake-jdbc#2460)
+    - Migrate from AWS SDK v1 to AWS SDK v2 (snowflakedb/snowflake-jdbc#2385 snowflakedb/snowflake-jdbc#2393)
+    - Return column_size value in database metadata commands as in JDBC spec (snowflakedb/snowflake-jdbc#2418)
+    - Migrate Azure storage from v5 to v12 (snowflakedb/snowflake-jdbc#2417)
+    - Enable bundled BouncyCastle for private key decryption by default (snowflakedb/snowflake-jdbc#2452)
+    - Rename BouncyCastle JVM property from net.snowflake.jdbc.enableBouncyCastle to net.snowflake.jdbc.useBundledBouncyCastleForPrivateKeyDecryption.
+    - Major public API restructuring: move all public APIs to net.snowflake.client.api.* package hierarchy:
+      - Add new unified QueryStatus class in public API that replaces the deprecated QueryStatus enum and QueryStatusV2 class.
+      - Add new public API interfaces for stream upload/download configuration (DownloadStreamConfig, UploadStreamConfig).
+      - Add SnowflakeDatabaseMetaData interface to public API for database metadata operations.
+      - Add SnowflakeAsyncResultSet interface to public API for async query operations.
+      - Add SnowflakeResultSetSerializable interface to public API.
+      - Deprecate net.snowflake.client.jdbc.SnowflakeDriver in favor of new net.snowflake.client.api.driver.SnowflakeDriver.
+      - Move internal classes to net.snowflake.client.internal.* package hierarchy.
+      - Removed deprecated com.snowflake.client.jdbc.SnowflakeDriver class.
+      - Removed deprecated QueryStatus enum from net.snowflake.client.core package.
+      - Removed deprecated QueryStatusV2 class from net.snowflake.client.jdbc package.
+      - Removed deprecated SnowflakeType enum from net.snowflake.client.jdbc package.
+
+- v3.28.0
+    - Ability to choose connection configuration in auto configuration file by a parameter in JDBC url. (snowflakedb/snowflake-jdbc#2369)
+    - Bumped grpc-java to 1.77.0 to address CVE-2025-58057 from transient dep (snowflakedb/snowflake-jdbc#2415)
+    - Fix Connection and socket timeout are now propagated to HTTP client.
+    - Fix Azure 503 retries and configure it with the putGetMaxRetries parameter.
+    - Improved retries for SSLHandshakeException errors caused by transient EOFException 
+    - Introduced shared library([source code](https://github.com/snowflakedb/universal-driver/tree/main/sf_mini_core)) for extended telemetry to identify and prepare testing platform for native rust extensions
+    - Bumped netty to 4.1.128.Final to address CVE-2025-59419
+
+- v3.27.1
+    - Added platform detection on login to set PLATFORM metric in CLIENT_ENVIRONMENT
+    - Disable DatabaseMetaDataLatestIT::testUseConnectionCtx test
+    - Fix IT tests to construct OAuth scopes correctly
+    - Fix exponential backoff retry time for non-auth requests
+    - Upgrade aws-sdk to 1.12.792 and add STS dependency
+    - Add rockylinux9 CI tests as part of RHEL 9 support
+    - Bumped grpc-java to 1.76.0 to address CVE-2025-58056 from transient dep
+    - Added `workloadIdentityImpersonationPath` config option for `authenticator=WORKLOAD_IDENTITY` allowing workloads to authenticate as a different identity through transitive service account impersonation (snowflakedb/snowflake-jdbc#2348)
+    - Added support for authentication as a different identity through transitive IAM role impersonation for AWS (snowflakedb/snowflake-jdbc#2364)
+    - Add AWS identity detection with ARN validation (snowflakedb/snowflake-jdbc#2379)
+  
+- v3.27.0
+    - Added the `changelog.yml` GitHub workflow to ensure changelog is updated on release PRs.
+    - Added HTTP 307 & 308 retries in case of internal IP redirects
+    - Make PAT creation return `ResultSet` when using `execute` method
+    - Renamed CRL_REVOCATION_CHECK_MODE to CERT_REVOCATION_CHECK_MODE in CLIENT_ENVIRONMENT metrics
+    - Test coverage for multistatement jdbc.
+    - Fixed permission check for .toml config file.
+    - Bumped netty to 4.1.127.Final to address CVE-2025-58056 and  CVE-2025-58057
+    - Add support for x-snowflake-session sticky HTTP session header returned by Snowflake
+    - Added support for Interval Year-Month and Day-Time types in JDBC.
+    - Added support for Decfloat types in JDBC.
+    - Fixed pattern search for file when QUOTED_IDENTIFIERS_IGNORE_CASE enabled
+    - Added support for CRL (certificate revocation list).

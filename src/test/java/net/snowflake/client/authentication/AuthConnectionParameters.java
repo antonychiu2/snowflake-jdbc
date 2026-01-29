@@ -1,6 +1,6 @@
 package net.snowflake.client.authentication;
 
-import static net.snowflake.client.jdbc.SnowflakeUtil.systemGetEnv;
+import static net.snowflake.client.internal.jdbc.SnowflakeUtil.systemGetEnv;
 
 import java.util.Properties;
 
@@ -32,7 +32,7 @@ public class AuthConnectionParameters {
   static Properties getExternalBrowserConnectionParameters() {
     Properties properties = getBaseConnectionParameters();
     properties.put("user", SSO_USER);
-    properties.put("authenticator", "externalbrowser");
+    properties.put("authenticator", "external_browser");
     return properties;
   }
 
@@ -55,6 +55,14 @@ public class AuthConnectionParameters {
     properties.put("user", SSO_USER);
     properties.put("authenticator", "OAUTH");
     properties.put("token", token);
+    return properties;
+  }
+
+  static Properties getMfaConnectionParameters() {
+    Properties properties = getBaseConnectionParameters();
+    properties.put("user", systemGetEnv("SNOWFLAKE_AUTH_TEST_MFA_USER"));
+    properties.put("password", systemGetEnv("SNOWFLAKE_AUTH_TEST_MFA_PASSWORD"));
+    properties.put("authenticator", "USERNAME_PASSWORD_MFA");
     return properties;
   }
 

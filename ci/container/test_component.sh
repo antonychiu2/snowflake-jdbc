@@ -19,7 +19,6 @@ else
     PARAMETER_FILE=$SOURCE_ROOT/src/test/resources/parameters.json
 fi
 eval $(jq -r '.testconnection | to_entries | map("export \(.key)=\(.value|tostring)")|.[]' $PARAMETER_FILE)
-eval $(jq -r '.orgconnection | to_entries | map("export \(.key)=\(.value|tostring)")|.[]' $PARAMETER_FILE)
 
 if [[ -n "$GITHUB_SHA" ]]; then
     # Github Action
@@ -62,7 +61,7 @@ if [[ "${ENABLE_CLIENT_LOG_ANALYZE}" == "true" ]]; then
     fi
 fi
 
-env | grep SNOWFLAKE_ | grep -v PASS | sort
+env | grep SNOWFLAKE_ | grep -v -E "(PASS|KEY|SECRET|TOKEN)" | sort
 
 echo "[INFO] Running Hang Web Server"
 kill -9 $(ps -ewf | grep hang_webserver | grep -v grep | awk '{print $2}') || true
@@ -70,13 +69,23 @@ python3 $THIS_DIR/hang_webserver.py 12345&
 
 # Avoid connection timeouts
 export MAVEN_OPTS="$MAVEN_OPTS -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.http.retryHandler.class=standard -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=120"
+echo $MAVEN_OPTS
 
 cd $SOURCE_ROOT
 
-# Avoid connection timeout on plugin dependency fetch or fail-fast when dependency cannot be fetched
-$MVNW_EXE --batch-mode --show-version dependency:go-offline
-
-export SF_ENABLE_EXPERIMENTAL_AUTHENTICATION=true
+# Avoid connection timeout on plugin dependency fetch or fail-fast when dependency cannot be fetched after 3 retries
+# Retry dependency:go-offline up to 3 times if it fails
+for attempt in 1 2 3; do
+    echo "[INFO] maven dependency:go-offline attempt $attempt/3"
+    if "$MVNW_EXE" --batch-mode --show-version dependency:go-offline; then
+        break
+    fi
+    if [ $attempt -eq 3 ]; then
+        exit 1
+    fi
+    echo "[WARN] Retrying in 5 seconds..."
+    sleep 5
+done
 
 if [[ "$is_old_driver" == "true" ]]; then
     pushd TestOnly >& /dev/null
